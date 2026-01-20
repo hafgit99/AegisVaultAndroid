@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import I18n from 'i18n-js';
+import { getLocales } from 'react-native-localize';
 
 // Translations
 export type Language = 'en' | 'tr';

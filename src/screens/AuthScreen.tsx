@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useVault } from '../contexts/VaultContext';
+import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { BiometricService } from '../services/biometricService';
 
@@ -26,6 +27,7 @@ export default function AuthScreen({ isSetup }: Props) {
   const [biometricAvailable, setBiometricAvailable] = useState(false);
 
   const { unlock, setup } = useVault();
+  const { setKey } = useAuth();
   const { t } = useLanguage();
 
   React.useEffect(() => {
@@ -42,11 +44,13 @@ export default function AuthScreen({ isSetup }: Props) {
       const result = await BiometricService.unlock();
       if (result) {
         const { key, raw } = result;
-        // TODO: Set the key in auth context
+        await setKey(key, raw);
         setLoading(false);
+      } else {
+        Alert.alert('Hata', 'Biyometrik doğrulama başarısız');
       }
     } catch (e) {
-      Alert.alert('Error', 'Biometric authentication failed');
+      Alert.alert('Hata', 'Biyometrik doğrulama başarısız');
     }
   };
 
