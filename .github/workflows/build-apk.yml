@@ -7,10 +7,14 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+env:
+  NODE_VERSION: '18'
+
 jobs:
   build:
     name: Build Debug APK
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout code
@@ -19,11 +23,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm install
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -31,8 +31,18 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Cache Gradle
-        uses: gradle/actions/setup-gradle@v3
+      - name: Install dependencies
+        run: npm install
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       - name: Grant execute permission for gradlew
         run: chmod +x android/gradlew
@@ -40,18 +50,31 @@ jobs:
       - name: Build Debug APK
         run: |
           cd android
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
+        if: success()
         with:
           name: AegisVault-Debug-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 30
+          retention-days: 90
+
+      - name: Upload build logs
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: build-logs-debug
+          path: |
+            android/build/
+            android/app/build/
+            ~/.gradle/logs/
+          retention-days: 7
 
   build-release:
     name: Build Release APK
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout code
@@ -60,11 +83,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm install
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -72,8 +91,18 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Cache Gradle
-        uses: gradle/actions/setup-gradle@v3
+      - name: Install dependencies
+        run: npm install
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       - name: Grant execute permission for gradlew
         run: chmod +x android/gradlew
@@ -81,11 +110,23 @@ jobs:
       - name: Build Release APK
         run: |
           cd android
-          ./gradlew assembleRelease --no-daemon
+          ./gradlew assembleRelease --no-daemon --stacktrace
 
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
+        if: success()
         with:
           name: AegisVault-Release-APK
           path: android/app/build/outputs/apk/release/app-release.apk
-          retention-days: 30
+          retention-days: 90
+
+      - name: Upload build logs
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: build-logs-release
+          path: |
+            android/build/
+            android/app/build/
+            ~/.gradle/logs/
+          retention-days: 7
