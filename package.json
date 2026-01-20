@@ -15,7 +15,8 @@
     "@react-navigation/stack": "^6.4.1",
     "@types/i18n-js": "^3.8.9",
     "hash-wasm": "^4.12.0",
-    "i18n-js": "^4.5.1",
+    "i18n-js": "4.4.3",
+    "make-plural": "7.4.0",
     "lucide-react-native": "^0.562.0",
     "react": "18.3.1",
     "react-native": "0.76.3",
@@ -26,7 +27,7 @@
     "react-native-localize": "^3.6.1",
     "react-native-quick-crypto": "^0.7.1",
     "react-native-quick-sqlite": "^8.2.7",
-    "react-native-reanimated": "3.16.1",
+    "react-native-reanimated": "3.15.6",
     "react-native-safe-area-context": "^4.10.5",
     "react-native-screens": "^3.31.1"
   },
@@ -54,6 +55,6 @@
     "node": ">=20"
   },
   "resolutions": {
-    "make-plural": "^8.0.0"
+    "make-plural": "7.4.0"
   }
 }
